@@ -29,6 +29,14 @@ post '/items' do
   item.to_json
 end
 
+put '/items/:id' do
+  content_type :json
+  bod = JSON.parse(request.body.read)
+  puts "put params: #{params[:id].to_i} | #{bod}"
+  #@@data[params[:id].to_i] = bod
+  bod.to_json
+end
+
 delete '/items/:id' do
   content_type :json
   puts "delete params: #{params}"

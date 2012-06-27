@@ -15,14 +15,17 @@ $(function() {
 	var ItemView = Backbone.View.extend({
 		tagName: 'li',
 		className: 'item',
-		template: _.template("<div class='item-content'><%=content%></div><span class='item-destroy'>X</span>"),
+		template: _.template("<div class='item-content'><%=content%></div><span class='item-destroy'>X</span><input type='text' class='item-input' value='<%=content%>' />"),
 		
 		events: {
-			'click .item-destroy': 'clear'
+			'dblclick .item-content': 'edit',
+			'click .item-destroy': 'clear',
+			'keypress .item-input': 'updateOnEnter',
+			'blur .item-input': 'close'
 		},
 		
 		initialize: function() {
-			_.bindAll(this, 'render');
+			//_.bindAll(this, 'render', 'close');
 			this.model.bind('change', this.render, this);
 			this.model.bind('destroy', this.remove, this);
 			this.model.view = this;
@@ -31,18 +34,26 @@ $(function() {
 		render: function() {
 			//alert(this.model.get('content'));
 			this.$el.html(this.template(this.model.toJSON()));
-			//$(this.el).setProperty('id', 'item-' + this.model.id);
-			//this.setContent();
+			this.input = this.$('.item-input');
 			
 			return this;
 		},
 		
-		/*close: function() {
+		edit: function() {
+			this.$el.addClass('editing');
+			this.input.focus();
+		},
+		
+		close: function() {
 			var value = this.input.val();
 			if (!value) this.clear();
-			this.model.save({title: value});
+			this.model.save({content: value});
 			this.$el.removeClass("editing");
-	    },*/
+	    },
+	
+		updateOnEnter: function(e) {
+			if (e.keyCode == 13) this.close();
+	    },
 	
 		clear: function() {
 			this.model.clear();

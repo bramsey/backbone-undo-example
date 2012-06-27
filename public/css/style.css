@@ -63,6 +63,8 @@ input[type="color"],
 .item-content {
 	width: 220px;
 	overflow: none;
+	margin-left: 6px;
+	margin-right: -6px;
 }
 
 li:hover .item-destroy {
@@ -71,4 +73,14 @@ li:hover .item-destroy {
 
 .item {
 	position: relative;
+}
+
+input.item-input {
+	display: none;
+	position: absolute;
+	top: -5px;
+}
+
+li.editing .item-input {
+  display: block;
 }
