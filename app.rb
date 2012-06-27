@@ -18,11 +18,11 @@ post '/items' do
   content_type :json
   puts "params: #{params}"
   if params[:model]
-    item = JSON.parse(params[:item]).merge(:id => @@count += 1 )
+    item = JSON.parse(params[:item]).merge('id' => @@count += 1 )
   else
     bod = request.body.read
     puts "body: #{bod}"
-    item = JSON.parse(bod).merge(:id => @@count += 1)
+    item = JSON.parse(bod).merge('id' => @@count += 1)
   end
   @@data << item
   puts "data: #{@@data}"
@@ -32,14 +32,14 @@ end
 put '/items/:id' do
   content_type :json
   bod = JSON.parse(request.body.read)
-  puts "put params: #{params[:id].to_i} | #{bod}"
-  #@@data[params[:id].to_i] = bod
+  index = @@data.index {|item| item['id'] == params[:id].to_i}
+  @@data[index] = bod if index
   bod.to_json
 end
 
 delete '/items/:id' do
   content_type :json
   puts "delete params: #{params}"
-  @@data.delete_if {|item| item[:id] == (params[:id].to_i)}
+  @@data.delete_if {|item| item['id'] == (params[:id].to_i)}
   puts "delete data: #{@@data}"
 end
