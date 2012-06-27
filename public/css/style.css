@@ -12,11 +12,14 @@ html {
 ul {padding: 0; margin: 0;}
 ul li {
 	list-style-type: none;
-	margin: 1.5em 0 0 0;
+	padding: .725em 1.5em .725em 1.5em;
+}
+
+#new-item {
+	margin: 1.5em 1.5em .725em 1.5em;
 }
 
 #list {
-	padding: 1.5em;
 	border: 2px dashed #ccc;
 	display: inline-block;
 }
@@ -69,6 +72,13 @@ input[type="color"],
 
 li:hover .item-destroy {
 	display: block;
+	right: .5em;
+	top: .725em;
+	color: #666;
+}
+
+li:hover {
+	background: #ebebeb;
 }
 
 .item {
@@ -78,7 +88,7 @@ li:hover .item-destroy {
 input.item-input {
 	display: none;
 	position: absolute;
-	top: -5px;
+	top: 6px;
 }
 
 li.editing .item-input {

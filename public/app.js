@@ -21,7 +21,9 @@ $(function() {
 			'click .item-content': 'edit',
 			'click .item-destroy': 'clear',
 			'keyup .item-input': 'updateOnEnter',
-			'blur .item-input': 'close'
+			'blur .item-input': 'close',
+			'mouseover .item-destroy': 'warnDelete',
+			'mouseout .item-destroy': 'unwarnDelete'
 		},
 		
 		initialize: function() {
@@ -62,7 +64,17 @@ $(function() {
 	
 		clear: function() {
 			this.model.clear();
-	    }
+	    },
+	
+		warnDelete: function() {
+			//alert(this.$el);
+			this.$el.css('background', '#f66');
+		},
+		
+		unwarnDelete: function() {
+			//alert(this.$el);
+			this.$el.css('background', '');
+		}
 	});
 
 	var ListView = Backbone.View.extend({
