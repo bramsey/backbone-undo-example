@@ -51,3 +51,24 @@ input[type="color"],
   line-height: 24px;
   color: #555555;
 }
+
+.item-destroy {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	display: none;
+	cursor: pointer;
+}
+
+.item-content {
+	width: 220px;
+	overflow: none;
+}
+
+li:hover .item-destroy {
+	display: block;
+}
+
+.item {
+	position: relative;
+}

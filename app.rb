@@ -28,3 +28,10 @@ post '/items' do
   puts "data: #{@@data}"
   item.to_json
 end
+
+delete '/items/:id' do
+  content_type :json
+  puts "delete params: #{params}"
+  @@data.delete_if {|item| item[:id] == (params[:id].to_i)}
+  puts "delete data: #{@@data}"
+end

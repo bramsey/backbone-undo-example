@@ -1,5 +1,9 @@
 $(function() {
-	var Item = Backbone.Model.extend({});
+	var Item = Backbone.Model.extend({
+		clear: function() {
+			this.destroy();
+		}
+	});
 
 	var ItemList = Backbone.Collection.extend({
 		model: Item,
@@ -11,15 +15,16 @@ $(function() {
 	var ItemView = Backbone.View.extend({
 		tagName: 'li',
 		className: 'item',
-		template: _.template("<div class='item-content'><%=content%></div>"),
+		template: _.template("<div class='item-content'><%=content%></div><span class='item-destroy'>X</span>"),
 		
 		events: {
-
+			'click .item-destroy': 'clear'
 		},
 		
 		initialize: function() {
 			_.bindAll(this, 'render');
 			this.model.bind('change', this.render, this);
+			this.model.bind('destroy', this.remove, this);
 			this.model.view = this;
 	    },
 	
@@ -30,7 +35,18 @@ $(function() {
 			//this.setContent();
 			
 			return this;
-		}
+		},
+		
+		/*close: function() {
+			var value = this.input.val();
+			if (!value) this.clear();
+			this.model.save({title: value});
+			this.$el.removeClass("editing");
+	    },*/
+	
+		clear: function() {
+			this.model.clear();
+	    }
 	});
 
 	var ListView = Backbone.View.extend({
