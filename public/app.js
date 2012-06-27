@@ -18,9 +18,9 @@ $(function() {
 		template: _.template("<div class='item-content'><%=content%></div><span class='item-destroy'>X</span><input type='text' class='item-input' value='<%=content%>' />"),
 		
 		events: {
-			'dblclick .item-content': 'edit',
+			'click .item-content': 'edit',
 			'click .item-destroy': 'clear',
-			'keypress .item-input': 'updateOnEnter',
+			'keyup .item-input': 'updateOnEnter',
 			'blur .item-input': 'close'
 		},
 		
@@ -52,6 +52,11 @@ $(function() {
 	    },
 	
 		updateOnEnter: function(e) {
+			if (e.keyCode == 27) {
+				this.input.val(this.model.get('content'));
+				this.$el.removeClass("editing");
+				return;
+			}
 			if (e.keyCode == 13) this.close();
 	    },
 	
