@@ -1,6 +1,8 @@
 $(function() {
 	var Item = Backbone.Model.extend({
 		clear: function() {
+			$('#undo').removeAttr('data-id');
+			Item.lastDestroyed = this.attributes;
 			this.destroy();
 		}
 	});
@@ -29,7 +31,7 @@ $(function() {
 		initialize: function() {
 			//_.bindAll(this, 'render', 'close');
 			this.model.bind('change', this.render, this);
-			this.model.bind('destroy', this.remove, this);
+			this.model.bind('destroy', this.removeItem, this);
 			this.model.bind('change', this.storePrev, this);
 			this.model.view = this;
 	    },
@@ -91,6 +93,15 @@ $(function() {
 					$undo.hide();
 				}, 10000);
 			}
+		},
+		
+		removeItem: function() {
+			this.remove();
+			var $undo = $('#undo');
+			$undo.show();
+			setTimeout(function() {
+				$undo.hide();
+			}, 10000);
 		}
 	});
 
@@ -137,8 +148,14 @@ $(function() {
 		undoChange: function() {
 			$undo = $('#undo');
 			var id = $undo.attr('data-id');
-			var model = items.get(parseInt(id));
-			model.save(model.prev);
+			if (id) {
+				$undo.removeAttr('data-id');
+				var model = items.get(parseInt(id));
+				model.save(model.prev);
+			} else {
+				items.create(Item.lastDestroyed);
+				Item.lastDestroyed = null;
+			}
 			$undo.hide();
 			return false;
 		}
