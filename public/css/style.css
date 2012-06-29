@@ -22,6 +22,7 @@ ul li {
 #list {
 	border: 2px dashed #ccc;
 	display: inline-block;
+	position: relative;
 }
 
 
@@ -93,4 +94,11 @@ input.item-input {
 
 li.editing .item-input {
   display: block;
+}
+
+#undo {
+	position: absolute;
+	top: 0em;
+	left: 1.5em;
+	display: none;
 }

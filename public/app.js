@@ -30,6 +30,7 @@ $(function() {
 			//_.bindAll(this, 'render', 'close');
 			this.model.bind('change', this.render, this);
 			this.model.bind('destroy', this.remove, this);
+			this.model.bind('change', this.storePrev, this);
 			this.model.view = this;
 	    },
 	
@@ -59,7 +60,10 @@ $(function() {
 				this.$el.removeClass("editing");
 				return;
 			}
-			if (e.keyCode == 13) this.close();
+			if (e.keyCode == 13) {
+				this.$el.find('.item-input')[0].blur();
+				this.$el.removeClass("editing");
+			}
 	    },
 	
 		clear: function() {
@@ -74,6 +78,19 @@ $(function() {
 		unwarnDelete: function() {
 			//alert(this.$el);
 			this.$el.css('background', '');
+		},
+		
+		storePrev: function() {
+			var attrs = this.model.previousAttributes();
+			if(attrs.id){
+				this.model.prev =  this.model.previousAttributes();
+				var $undo = $('#undo');
+				$undo.attr('data-id', this.model.get('id'));
+				$undo.show();
+				setTimeout(function() {
+					$undo.hide();
+				}, 10000);
+			}
 		}
 	});
 
@@ -81,7 +98,8 @@ $(function() {
 		el: $('#list'),
 		
 		events: {
-			'keypress #new-item': 'createOnEnter'
+			'keypress #new-item': 'createOnEnter',
+			'click #undo': 'undoChange'
 		},
 		
 		initialize: function() {
@@ -114,6 +132,15 @@ $(function() {
 				content: this.input.val()
 			});
 			this.input.val('');
+		},
+		
+		undoChange: function() {
+			$undo = $('#undo');
+			var id = $undo.attr('data-id');
+			var model = items.get(parseInt(id));
+			model.save(model.prev);
+			$undo.hide();
+			return false;
 		}
 	});
 	
