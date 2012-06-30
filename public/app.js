@@ -6,20 +6,40 @@ $(function() {
 		},
 		
 		storeAction: function(event) {
-			var attributes = this.previousAttributes();
+			var attributes = this.previousAttributes(), action = {};
 			if (attributes.id) {
-				Item.lastAction = {
-					action: event._changing ? 'change' : 'destroy',
-					attributes: this.previousAttributes()
+				action.attributes = attributes;
+				if (event._changing) {
+					action.type = 'change';
+					action.model = this;
+					action.undo = function () {
+						this.model.save(this.attributes);
+					};
+				} else {// destroy action
+					action.type = 'destroy';
 				}
-				this.trigger('undoableAction');			
+				this.trigger('undoableAction', action);			
 			}
 		}
 	});
 
 	var ItemList = Backbone.Collection.extend({
 		model: Item,
-		url: 'http://localhost:4567/items'
+		url: 'http://localhost:4567/items', 
+		initialize: function() {
+			this.bind('undoableAction', this.storeLastAction, this);
+		},
+		
+		storeLastAction: function(event) {
+			this.lastAction = event;
+			if (event.type === 'destroy') {
+				this.lastAction.list = this;
+				this.lastAction.undo = function () {
+					this.list.create(this.attributes);
+					this.list.lastAction = null;
+				};
+			}
+		}
 	});
 
 	var items = new ItemList;
@@ -137,13 +157,8 @@ $(function() {
 		},
 		
 		undoAction: function() {
-			if (Item.lastAction.action === 'change') {
-				var model = items.get(Item.lastAction.attributes['id']);
-				model.save(Item.lastAction.attributes);
-			} else {
-				items.create(Item.lastAction.attributes);
-				Item.lastAction = null;
-			}
+			var action = items.lastAction;
+			action.undo();
 			$('#undo').hide();
 			return false;
 		}
