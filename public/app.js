@@ -89,9 +89,9 @@ $(function() {
 				var $undo = $('#undo');
 				$undo.attr('data-id', this.model.get('id'));
 				$undo.show();
-				setTimeout(function() {
+				/*setTimeout(function() {
 					$undo.hide();
-				}, 10000);
+				}, 10000);*/
 			}
 		},
 		
@@ -99,9 +99,9 @@ $(function() {
 			this.remove();
 			var $undo = $('#undo');
 			$undo.show();
-			setTimeout(function() {
+			/*setTimeout(function() {
 				$undo.hide();
-			}, 10000);
+			}, 10000);*/
 		}
 	});
 
