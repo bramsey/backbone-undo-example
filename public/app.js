@@ -1,9 +1,19 @@
 $(function() {
 	var Item = Backbone.Model.extend({
-		clear: function() {
-			$('#undo').removeAttr('data-id');
-			Item.lastDestroyed = this.attributes;
-			this.destroy();
+		initialize: function() {
+			this.bind('change', this.storeAction, this);
+			this.bind('destroy', this.storeAction, this);
+		},
+		
+		storeAction: function(event) {
+			var attributes = this.previousAttributes();
+			if (attributes.id) {
+				Item.lastAction = {
+					action: event._changing ? 'change' : 'destroy',
+					attributes: this.previousAttributes()
+				}
+				this.trigger('undoableAction');			
+			}
 		}
 	});
 
@@ -29,15 +39,13 @@ $(function() {
 		},
 		
 		initialize: function() {
-			//_.bindAll(this, 'render', 'close');
 			this.model.bind('change', this.render, this);
-			this.model.bind('destroy', this.removeItem, this);
-			this.model.bind('change', this.storePrev, this);
+			this.model.bind('destroy', this.remove, this);
+			this.model.bind('undoableAction', this.showUndo, this);
 			this.model.view = this;
 	    },
 	
 		render: function() {
-			//alert(this.model.get('content'));
 			this.$el.html(this.template(this.model.toJSON()));
 			this.input = this.$('.item-input');
 			
@@ -52,7 +60,7 @@ $(function() {
 		close: function() {
 			var value = this.input.val();
 			if (!value) this.clear();
-			this.model.save({content: value});
+			if (this.model.get('content') !== value) this.model.save({content: value});
 			this.$el.removeClass("editing");
 	    },
 	
@@ -69,34 +77,18 @@ $(function() {
 	    },
 	
 		clear: function() {
-			this.model.clear();
+			this.model.destroy();
 	    },
 	
 		warnDelete: function() {
-			//alert(this.$el);
 			this.$el.css('background', '#f66');
 		},
 		
 		unwarnDelete: function() {
-			//alert(this.$el);
 			this.$el.css('background', '');
 		},
 		
-		storePrev: function() {
-			var attrs = this.model.previousAttributes();
-			if(attrs.id){
-				this.model.prev =  this.model.previousAttributes();
-				var $undo = $('#undo');
-				$undo.attr('data-id', this.model.get('id'));
-				$undo.show();
-				/*setTimeout(function() {
-					$undo.hide();
-				}, 10000);*/
-			}
-		},
-		
-		removeItem: function() {
-			this.remove();
+		showUndo: function() {
 			var $undo = $('#undo');
 			$undo.show();
 			/*setTimeout(function() {
@@ -110,7 +102,7 @@ $(function() {
 		
 		events: {
 			'keypress #new-item': 'createOnEnter',
-			'click #undo': 'undoChange'
+			'click #undo': 'undoAction'
 		},
 		
 		initialize: function() {
@@ -138,25 +130,21 @@ $(function() {
 			if (e.keyCode != 13) return;
 			if (!this.input.val()) return;
 			
-			
 			items.create({
 				content: this.input.val()
 			});
 			this.input.val('');
 		},
 		
-		undoChange: function() {
-			$undo = $('#undo');
-			var id = $undo.attr('data-id');
-			if (id) {
-				$undo.removeAttr('data-id');
-				var model = items.get(parseInt(id));
-				model.save(model.prev);
+		undoAction: function() {
+			if (Item.lastAction.action === 'change') {
+				var model = items.get(Item.lastAction.attributes['id']);
+				model.save(Item.lastAction.attributes);
 			} else {
-				items.create(Item.lastDestroyed);
-				Item.lastDestroyed = null;
+				items.create(Item.lastAction.attributes);
+				Item.lastAction = null;
 			}
-			$undo.hide();
+			$('#undo').hide();
 			return false;
 		}
 	});
